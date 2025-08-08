@@ -1,0 +1,196 @@
+/* Estilos Globais */
+body, html {
+  background-color: #101010;
+  color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, sans-serif;
+}
+
+/* Layout Principal */
+.container-principal {
+  display: flex;
+  height: 100vh;
+}
+
+/* Coluna da Esquerda (Container do 3D e Conteúdo) */
+.coluna-esquerda {
+  width: 30%;
+  flex-shrink: 0;
+  position: relative; /* Essencial para posicionar filhos absolutamente */
+  overflow: hidden; /* Garante que nada vaze */
+  background-color: #101010;
+}
+
+/* Visualizador 3D como Fundo */
+.visualizador-fundo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0; /* Camada 0: Fica no fundo */
+}
+
+/* Conteúdo Sobreposto ao 3D */
+.conteudo-sobreposto {
+  position: relative;
+  z-index: 1; /* Camada 1: Fica na frente */
+  height: 100%;
+  padding: 2rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Empurra o topo para cima e o rodapé para baixo */
+  pointer-events: none; /* Permite cliques através das áreas vazias */
+}
+
+/* Reativa os cliques para os elementos interativos */
+.conteudo-sobreposto > * {
+  pointer-events: auto;
+}
+
+/* Coluna da Direita com Rolagem */
+.coluna-direita {
+  width: 70%;
+  padding: 2rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* ANIMAÇÕES */
+@keyframes seesaw-float {
+  0% {
+    transform: translateY(0px) rotate(-2deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(2deg);
+  }
+}
+
+@keyframes shine {
+  0% {
+    background-position: 200% center; /* Começa fora da tela (direita) */
+  }
+  15% {
+    background-position: 100% center; /* Passa rapidamente para a esquerda */
+  }
+  100% {
+    background-position: -200% center; /* Permanece fora da tela até o ciclo recomeçar */
+  }
+}
+
+/* Estilos dos Elementos da Coluna Esquerda */
+.logo {
+  margin-bottom: 1rem;
+  
+}
+
+.produto-nome {
+  font-size: 5rem;
+  font-weight: bolder;
+  margin: 0;
+  
+  /* Efeito de brilho (shiny) */
+  background: linear-gradient(
+    120deg,
+    #F3F3F3 20%,
+    #fe5000 40%,
+    #fe5000 60%,
+    #F3F3F3 80%
+  );
+  background-size: 200% auto;
+  color: #000;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+  /* Combinação das duas animações */
+  animation: 
+    seesaw-float 3s infinite ease-in-out alternate,
+    shine 10s linear infinite;
+}
+
+.preco {
+  font-size: 3rem; /* Ajustado para 48px */
+  font-weight: bold;
+  color: white;
+  text-align: left;
+  margin: 0 0 1rem 0;
+}
+
+.button-group {
+  display: flex;
+  justify-content: stretch;
+  gap: 1rem;
+}
+
+/* Estilo base para os botões com transição */
+.comprar-button, .vermais-button {
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.comprar-button {
+  background-color: #fe5000;
+  color: white;
+  font-size: 1.5rem; /* 24px */
+  padding: 1.5rem 6rem; /* Padding ajustado para ser responsivo */
+}
+
+.vermais-button {
+  background-color: #333;
+  color: white;
+  font-size: 1.125rem; /* 18px */
+  padding: 0.75rem 0rem; /* Padding ajustado */
+}
+
+/* ANIMAÇÃO: Efeito Hover (flutuar) */
+.comprar-button:hover, .vermais-button:hover {
+  transform: translateY(-5px) scale(1.03);
+  filter: brightness(1.2);
+}
+
+/* ANIMAÇÃO: Efeito Active (clique explosivo) */
+.comprar-button:active {
+  transform: translateY(0) scale(0.98);
+  filter: brightness(1);
+  box-shadow: 0 0 30px 5px #fe5000;
+}
+
+.vermais-button:active {
+  transform: translateY(0) scale(0.98);
+  filter: brightness(1);
+  box-shadow: 0 0 20px 2px #888;
+}
+
+.valor-total-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #1c1c1c;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-top: 1.5rem;
+}
+
+.icone-cesta img {
+  width: 24px;
+}
+
+.valor-texto {
+  color: white;
+  font-weight: bold;
+}
+
+.valor-preco {
+  background-color: #fe5000;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: bold;
+  color: white;
+}
