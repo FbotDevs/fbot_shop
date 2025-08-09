@@ -9,7 +9,7 @@ import { useGLTF, OrbitControls, Environment } from '@react-three/drei';
 const caminhoDoModelo = '/coca_cola_soda_can.glb'; 
 
 // O componente Modelo agora aceita 'props' (como a posição inicial)
-function Modelo(props) {
+function Modelo(props: JSX.IntrinsicElements['group']) {
   const { scene } = useGLTF(caminhoDoModelo);
   const modelRef = useRef<THREE.Object3D>(); 
 
@@ -31,8 +31,6 @@ export function Visualizador3D() {
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
       
-      {/* Aqui definimos a posição inicial do modelo: [x, y, z] */}
-      {/* Exemplo: [0, -1, 0] move o objeto 1 unidade para baixo */}
       <Modelo position={[0, -2, 0]} /> 
 
       <OrbitControls enableZoom={false} enablePan={false} />
