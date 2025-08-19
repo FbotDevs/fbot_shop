@@ -174,7 +174,7 @@ function App() {
         {                                                               /* Todo o conteúdo visível fica agrupado e sobreposto ao fundo */}
         <div className="conteudo-sobreposto">
           <div className="topo">
-            <img src="src\\assets\\Logo_FSHOP_LOGO.svg" alt="Logo FSHOP" />
+            <img className="logo" src="src\\assets\\Logo_FSHOP_LOGO.svg" alt="Logo FSHOP" />
             <h2 className="produto-nome">{destaqueItem?.nome ?? ""}</h2>
           </div>
 

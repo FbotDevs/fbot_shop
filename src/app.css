@@ -1,4 +1,3 @@
-/* Estilos Globais */
 body, html {
   background-color: #101010;
   color: #f0f0f0;
@@ -6,59 +5,73 @@ body, html {
   padding: 0;
   font-family: system-ui, sans-serif;
 }
-
-/* Layout Principal */
 .container-principal {
   display: flex;
   height: 100vh;
 }
-
-/* Coluna da Esquerda (Container do 3D e Conteúdo) */
 .coluna-esquerda {
   width: 30%;
   flex-shrink: 0;
-  position: relative; /* Essencial para posicionar filhos absolutamente */
-  overflow: hidden; /* Garante que nada vaze */
+  position: relative;
+  overflow: hidden;
   background-color: #101010;
+  height: 100vh;           
+  max-height: 100vh;       
+  display: flex;            
+  flex-direction: column;
 }
-
-/* Visualizador 3D como Fundo */
 .visualizador-fundo {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 0; /* Camada 0: Fica no fundo */
+  z-index: 0;
 }
-
-/* Conteúdo Sobreposto ao 3D */
 .conteudo-sobreposto {
   position: relative;
-  z-index: 1; /* Camada 1: Fica na frente */
+  z-index: 1;
   height: 100%;
   padding: 2rem;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Empurra o topo para cima e o rodapé para baixo */
-  pointer-events: none; /* Permite cliques através das áreas vazias */
+  justify-content: space-between;
+  pointer-events: none;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
-
-/* Reativa os cliques para os elementos interativos */
 .conteudo-sobreposto > * {
   pointer-events: auto;
 }
-
-/* Coluna da Direita com Rolagem */
 .coluna-direita {
   width: 70%;
   padding: 2rem;
   box-sizing: border-box;
   overflow-y: auto;
 }
-
-/* ANIMAÇÕES */
+@media (max-width: 600px) {
+  .container-principal {
+    flex-direction: column;
+    height: auto;
+  }
+  .coluna-esquerda, .coluna-direita {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+  .coluna-esquerda {
+    height: auto;
+    max-height: none;
+    min-height: 300px;
+    overflow: visible;
+  }
+  .coluna-direita {
+    padding-top: 0;
+  }
+}
 @keyframes seesaw-float {
   0% {
     transform: translateY(0px) rotate(-2deg);
@@ -80,18 +93,28 @@ body, html {
   }
 }
 
-/* Estilos dos Elementos da Coluna Esquerda */
 .logo {
   margin-bottom: 1rem;
   
+  max-width: 320px;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 600px) {
+  .logo {
+    max-width: 140px;
+    margin-bottom: 0.5rem;
+  }
 }
 
 .produto-nome {
-  font-size: 5rem;
-  font-weight: bolder;
-  margin: 0;
-  
-  /* Efeito de brilho (shiny) */
+  font-size: clamp(3.5rem, 6vw + 1rem, 7.5rem);
+  line-height: 0.95;
+  font-weight: 900;
+  letter-spacing: -2px;
+  margin: 0 0 .5rem 0;
+
   background: linear-gradient(
     120deg,
     #F3F3F3 20%,
@@ -105,18 +128,26 @@ body, html {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   
-  /* Combinação das duas animações */
   animation: 
     seesaw-float 3s infinite ease-in-out alternate,
     shine 10s linear infinite;
 }
 
 .preco {
-  font-size: 3rem; /* Ajustado para 48px */
-  font-weight: bold;
-  color: white;
+  font-size: 124px;
+  font-weight: 900;
+  color: #ffffff; /* branco puro */
   text-align: left;
-  margin: 0 0 1rem 0;
+  margin: 0 0 1.4rem 0;
+  letter-spacing: -2px;
+  line-height: .9;
+  text-shadow: 0 4px 18px rgba(0,0,0,0.55), 0 0 6px rgba(255,255,255,0.12);
+  transition: transform .4s ease;
+}
+.preco:hover { transform: scale(1.015); }
+
+@media (max-width: 600px) {
+  .preco { font-size: clamp(2.6rem, 9vw + .5rem, 4.2rem); letter-spacing: -1px; }
 }
 
 .button-group {
@@ -125,7 +156,6 @@ body, html {
   gap: 1rem;
 }
 
-/* Estilo base para os botões com transição */
 .comprar-button, .vermais-button {
   font-weight: bold;
   border: none;
@@ -138,24 +168,21 @@ body, html {
 .comprar-button {
   background-color: #fe5000;
   color: white;
-  font-size: 1.5rem; /* 24px */
-  padding: 1.5rem 6rem; /* Padding ajustado para ser responsivo */
+  font-size: 1.5rem;
+  padding: 1.5rem 6rem;
 }
 
 .vermais-button {
   background-color: #333;
   color: white;
-  font-size: 1.125rem; /* 18px */
-  padding: 0.75rem 0rem; /* Padding ajustado */
+  font-size: 1.125rem;
+  padding: 0.75rem 0rem;
 }
 
-/* ANIMAÇÃO: Efeito Hover (flutuar) */
 .comprar-button:hover, .vermais-button:hover {
   transform: translateY(-5px) scale(1.03);
   filter: brightness(1.2);
 }
-
-/* ANIMAÇÃO: Efeito Active (clique explosivo) */
 .comprar-button:active {
   transform: translateY(0) scale(0.98);
   filter: brightness(1);
@@ -172,10 +199,108 @@ body, html {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #1c1c1c;
+  gap: 1rem;
+  background: rgba(28,28,28,0.75);
+  border: 1px solid rgba(254,80,0,0.25);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border-radius: 14px;
+  padding: 0.75rem 1.1rem;
+  margin-top: 1.25rem;
+  box-shadow: 0 4px 18px -4px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  transition: background .3s ease, border-color .3s ease, transform .25s ease;
+}
+
+.valor-total-container:hover {
+  background: rgba(32,32,32,0.85);
+  border-color: rgba(254,80,0,0.4);
+}
+
+.valor-total-container .botao-cesta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: linear-gradient(145deg, rgba(254,80,0,0.15), rgba(254,80,0,0.05));
+  border: 1px solid rgba(254,80,0,0.4);
+  color: #fff;
+  padding: 0.55rem 0.9rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  position: relative;
+  transition: background .3s ease, transform .25s ease, box-shadow .3s ease, border-color .3s ease;
+}
+
+.valor-total-container .botao-cesta:active { transform: scale(.95); }
+
+.valor-total-container .botao-cesta:hover {
+  background: linear-gradient(145deg, rgba(254,80,0,0.45), rgba(254,80,0,0.20));
+  border-color: rgba(254,80,0,0.8);
+  box-shadow: 0 0 0 3px rgba(254,80,0,0.15);
+}
+
+.valor-total-container .botao-cesta-icone {
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
-  padding: 0.75rem 1rem;
-  margin-top: 1.5rem;
+  background: #fe5000;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 8px -2px rgba(254,80,0,0.6);
+  transition: background .3s ease, transform .3s ease;
+}
+
+.valor-total-container .botao-cesta:hover .botao-cesta-icone { background: #ff6a25; transform: rotate(-8deg); }
+
+.valor-total-container .botao-cesta-icone img { width: 20px; filter: brightness(0) invert(1); }
+
+.valor-total-container .botao-cesta-texto { font-weight: 700; }
+
+.valor-total-container .total-pagar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+  padding-left: 0.75rem;
+  border-left: 1px solid rgba(255,255,255,0.08);
+}
+
+.valor-total-container .total-label { color: #bbb; font-size: 0.75rem; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+.valor-total-container .valor-preco {
+  background: linear-gradient(135deg,#fe5000,#ff7833);
+  padding: 0.45rem 0.85rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset, 0 4px 14px -4px rgba(254,80,0,0.55);
+}
+
+@media (max-width: 600px) {
+  .valor-total-container {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2000;
+    width: 100%;
+    margin: 0;
+    border-radius: 18px 18px 0 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    background: linear-gradient(180deg, rgba(24,24,24,0.85) 0%, rgba(16,16,16,0.92) 70%);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    padding: 0.75rem 1rem env(safe-area-inset-bottom, 0.75rem);
+    box-shadow: 0 -2px 18px -4px rgba(0,0,0,0.6), 0 2px 0 rgba(255,255,255,0.04) inset;
+  }
+  .valor-total-container .botao-cesta { flex: 1; justify-content: center; }
+  .valor-total-container .total-pagar { flex: 0; border-left: none; padding-left: 0; }
+  .valor-total-container .valor-preco { font-size: 0.9rem; }
+  body, html { padding-bottom: 90px; }
 }
 
 .icone-cesta img {
@@ -195,14 +320,64 @@ body, html {
   color: white;
 }
 
-/* Estilos para a seção do Drop e Timer */
 .drop-section {
-  background-color: #1c1c1c;
-  border-radius: 12px;
-  padding: 1.5rem 1.5rem  6.5rem; /* mais espaço inferior para o 3D sobrepor */
-  margin-bottom: 2rem;
-  border: 2px solid #fe5000;
-  position: relative; /* para posicionamento absoluto do viewer */
+  position: relative;
+  border-radius: 18px;
+  padding: 1.8rem 1.8rem 6.8rem;
+  margin-bottom: 2.2rem;
+  border: none;
+  background: linear-gradient(135deg,#1a1a1a 0%, #231815 8%, #402015 20%, #fe5000 37%, #ff7a2f 46%, #fe5000 55%, #2a140c 72%, #1a1a1a 100%);
+  background-size: 250% 250%;
+  animation: flameMove 9s ease-in-out infinite;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04) inset,
+    0 4px 24px -6px rgba(0,0,0,0.8),
+    0 0 38px -10px rgba(254,80,0,0.85),
+    0 0 70px -25px rgba(255,138,47,0.9);
+  overflow: visible;
+}
+.drop-section::before, .drop-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.drop-section::before {
+  background: radial-gradient(circle at 65% 40%, rgba(255,140,60,0.35), transparent 60%),
+              radial-gradient(circle at 30% 70%, rgba(255,90,10,0.25), transparent 65%);
+  filter: blur(18px) saturate(140%);
+  animation: emberPulse 5.5s ease-in-out infinite;
+}
+
+.drop-section::after {
+  background: repeating-radial-gradient(circle at 50% 50%, rgba(255,200,120,0.12) 0 4px, transparent 4px 12px);
+  opacity: 0.25;
+  animation: heatFlicker 7s linear infinite;
+}
+
+@keyframes flameMove {
+  0%,100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes emberPulse {
+  0%,100% { opacity: 0.55; transform: scale(1); }
+  45% { opacity: 0.85; transform: scale(1.05); }
+  60% { opacity: 0.4; }
+}
+
+@keyframes heatFlicker {
+  0% { transform: translate3d(0,0,0) scale(1); opacity: 0.22; }
+  25% { transform: translate3d(1px,-2px,0) scale(1.02); opacity: 0.3; }
+  50% { transform: translate3d(-1px,1px,0) scale(1.01); opacity: 0.18; }
+  75% { transform: translate3d(2px,-1px,0) scale(1.03); opacity: 0.28; }
+  100% { transform: translate3d(0,0,0) scale(1); opacity: 0.22; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drop-section, .drop-section::before, .drop-section::after { animation: none; background-size: cover; }
 }
 
 .timer {
@@ -235,7 +410,6 @@ body, html {
   margin: 0;
 }
 
-/* ===== OFERTA DO DIA (layout novo) ===== */
 .deal-layout { display: flex; align-items: center; gap: 1rem; position: relative; z-index: 1; }
 .deal-info { flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
 .deal-name { font-size: 2.2rem; font-weight: 900; color: #fff; }
@@ -244,17 +418,50 @@ body, html {
 .deal-new { color: #fe5000; font-size: 1.6rem; font-weight: 800; }
 .deal-badge { color: #fe5000; font-weight: 800; }
 .deal-button { 
-  width: fit-content; background: #fe5000; color: #fff; border: none; 
-  padding: 0.5rem 0.9rem; border-radius: 6px; font-weight: 700; cursor: pointer; 
+  width: fit-content;
+  background: linear-gradient(135deg,#fe5000,#ff772e);
+  color: #fff;
+  border: none;
+  padding: 1.1rem 2.2rem;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: clamp(1.15rem, 1.2vw + 0.8rem, 2rem);
+  letter-spacing: .5px;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 8px 28px -8px rgba(254,80,0,0.65), 0 0 0 1px rgba(255,255,255,0.05) inset;
+  transition: background .35s ease, transform .25s ease, box-shadow .35s ease;
+}
+.deal-button:hover {
+  background: linear-gradient(135deg,#ff6a25,#ff8c47 55%, #fe5000);
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 14px 40px -10px rgba(254,80,0,0.75), 0 0 0 3px rgba(254,80,0,0.25);
+}
+.deal-button:active { transform: translateY(0) scale(.97); box-shadow: 0 4px 16px -4px rgba(254,80,0,0.6); }
+
+@media (max-width: 600px) {
+  .produto-nome { font-size: clamp(2.8rem, 10vw + 1rem, 5rem); letter-spacing: -1px; }
+  .preco { font-size: clamp(2.2rem, 7vw + .5rem, 3.6rem); }
+  .deal-button { width: 100%; text-align: center; padding: 1rem 1.4rem; font-size: 1.35rem; }
 }
 .deal-viewer { 
-  width: 560px; 
-  height: 420px; 
+  width: 600px; 
+  height: 460px; 
   position: absolute; 
-  right: 0.5rem; 
-  bottom: -2.0rem; 
-  pointer-events: none; /* não bloquear os cliques dos botões */
-  z-index: 0; /* fica atrás do texto da oferta */
+  right: -2.2rem; 
+  bottom: -3.2rem; 
+  pointer-events: none;
+  z-index: 10;
+  filter: drop-shadow(0 12px 28px rgba(0,0,0,0.65)) drop-shadow(0 0 28px rgba(254,80,0,0.55));
+  transition: transform 1.2s cubic-bezier(.19,1,.22,1), filter .6s ease;
+}
+.deal-viewer:hover { transform: translateY(-6px) scale(1.04) rotateZ(.5deg); filter: drop-shadow(0 18px 38px rgba(0,0,0,0.7)) drop-shadow(0 0 42px rgba(254,80,0,0.7)); }
+
+@media (max-width: 1024px) {
+  .deal-viewer { width: 480px; height: 380px; right: -1.2rem; bottom: -2.4rem; }
+}
+@media (max-width: 680px) {
+  .deal-viewer { width: 360px; height: 300px; right: -0.8rem; bottom: -1.8rem; }
 }
 
 @media (max-width: 1024px) {
@@ -262,7 +469,6 @@ body, html {
   .drop-section { padding-bottom: 4.5rem; }
 }
 
-/* ===== ESTILOS PARA LOJA E ITENS ===== */
 
 .cardapio-section {
   margin-top: 2rem;
@@ -296,10 +502,9 @@ body, html {
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x mandatory;
-  padding-bottom: 0.5rem; /* espaço para não cortar a sombra do card */
+  padding-bottom: 0.5rem;
 }
 
-/* ===== ESTILOS PARA ITENS SIMPLIFICADOS ===== */
 .item-loja-simple {
   background-color: #1c1c1c;
   border-radius: 12px;
@@ -310,7 +515,7 @@ body, html {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  flex: 0 0 260px; /* tamanho fixo do card na horizontal */
+  flex: 0 0 260px; 
   width: 260px;
   scroll-snap-align: start;
 }
@@ -324,7 +529,7 @@ body, html {
 .item-3d-container {
   width: 200px;
   height: 200px;
-  justify-content: space-between; /* No change needed here */
+  justify-content: space-between; 
   border-radius: 8px;
   overflow: hidden;
   background: transparent;
@@ -347,27 +552,15 @@ body, html {
   color: #f0f0f0;
 }
 
-.item-buttons-simple {
-.botao-cesta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-.botao-cesta-icone {
-  width: 36px; height: 36px; border-radius: 8px; background: #fe5000; display: grid; place-items: center;
-}
+.item-buttons-simple { display: flex; gap: 1rem; width: 100%; }
+
+.botao-cesta { display: inline-flex; align-items: center; gap: 0.75rem; background: transparent; border: none; cursor: pointer; }
+.botao-cesta-icone { width: 36px; height: 36px; border-radius: 8px; background: #fe5000; display: grid; place-items: center; }
 .botao-cesta-icone img { width: 22px; filter: brightness(0) invert(1); }
 .botao-cesta-texto { color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
 
 .total-pagar { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
 .total-label { color: #ddd; font-weight: 600; }
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-}
 
 .btn-adicionar-simple {
   flex: 2;
@@ -392,22 +585,46 @@ body, html {
 
 .btn-detalhes-simple {
   flex: 1;
-  background-color: transparent;
-  color: #fe5000;
-  border: 2px solid #fe5000;
-  padding: 0.8rem 1rem;
-  border-radius: 6px;
-  font-weight: bold;
+  /* estilos herdados do novo padrão outlined */
+}
+
+.btn-outline-base, .btn-detalhes-simple, .btn-modal-close {
+  background: linear-gradient(145deg, rgba(254,80,0,0.15), rgba(254,80,0,0.05));
+  border: 1px solid rgba(254,80,0,0.4);
+  color: #fff;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  transition: background .3s ease, transform .25s ease, box-shadow .3s ease, border-color .3s ease, color .3s ease;
 }
 
-.btn-detalhes-simple:hover {
-  background-color: #fe5000;
-  color: white;
+.btn-detalhes-simple:hover, .btn-modal-close:hover, .btn-outline-base:hover {
+  background: linear-gradient(145deg, rgba(254,80,0,0.45), rgba(254,80,0,0.20));
+  border-color: rgba(254,80,0,0.8);
+  box-shadow: 0 0 0 3px rgba(254,80,0,0.15);
+  color: #fff;
 }
 
-/* ===== ESTILOS PARA O MODAL ===== */
+.btn-detalhes-simple:active, .btn-modal-close:active, .btn-outline-base:active {
+  transform: scale(.95);
+}
+
+.btn-detalhes-simple:disabled, .btn-modal-close:disabled, .btn-outline-base:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -472,7 +689,6 @@ body, html {
   height: 100%;
 }
 
-/* ===== FLYOUT DO CARRINHO ===== */
 .cart-flyout {
   position: fixed;
   top: 0;
@@ -512,7 +728,7 @@ body, html {
   flex-direction: column;
   gap: 0.75rem;
 }
-.cart-empty { color: #bbb; }
+.cart-empty { color: #fe5000; }
 .cart-line {
   display: flex;
   align-items: center;
@@ -636,22 +852,11 @@ body, html {
 
 .btn-modal-close {
   flex: 1;
-  background-color: transparent;
-  color: #ccc;
-  border: 2px solid #666;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
 }
-
-.btn-modal-close:hover {
-  border-color: #fe5000;
-  color: #fe5000;
+.btn-detalhes-simple:focus-visible, .btn-modal-close:focus-visible, .btn-outline-base:focus-visible {
+  outline: 2px solid #fe813d;
+  outline-offset: 2px;
 }
-
-/* Responsividade do modal */
 @media (max-width: 768px) {
   .modal-body {
     flex-direction: column;
@@ -667,7 +872,6 @@ body, html {
   }
 }
 
-/* Estilo individual de cada item da loja */
 .item-loja {
   background-color: #1c1c1c;
   border-radius: 12px;
@@ -798,7 +1002,8 @@ body, html {
 .btn-detalhes {
   flex: 1;
   background-color: transparent;
-  color: #fe5000;
+  color: #fff;
+  background-color: #fe5000;
   border: 2px solid #fe5000;
   padding: 0.8rem 1rem;
   border-radius: 6px;
@@ -808,8 +1013,8 @@ body, html {
 }
 
 .btn-detalhes:hover {
-  background-color: #fe5000;
-  color: white;
+  background-color: #e54800;
+  color: #fff;
 }
 
 
