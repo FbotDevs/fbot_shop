@@ -5,6 +5,7 @@ import { Visualizador3DItem } from './components/Visualizador3DItem';
 import ItemLoja from './components/ItemLoja';
 import CartFlyout from './components/CartFlyout';
 import ModalDetalhes from './components/ModalDetalhes';
+import PopupPedidoSucesso from './components/PopupPedidoSucesso';
 import { LojaItem, CarrinhoItem } from './types';
 import { fetchItensLoja, getItemById, parseFeaturedFromLocation, selectFeaturedItemId } from './services/items';
 import { submitOrder } from './services/orders';
@@ -27,6 +28,9 @@ function App() {
   const destaqueItem = getItemById(itensLoja, destaqueId) ?? itensLoja[0];
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [dealItemId, setDealItemId] = useState<number | undefined>(undefined);
+
+  // Estado para popup de pedido efetuado
+  const [pedidoSucessoAberto, setPedidoSucessoAberto] = useState(false);
 
   // Funções para gerenciar o carrinho
   const adicionarAoCarrinho = (item: LojaItem) => {
@@ -76,8 +80,9 @@ function App() {
   const finalizarPedido = async () => {
     const order = await submitOrder(carrinho);
     console.log('Pedido enviado (stub):', order);
-    // Futuro: navegar para tela de confirmação, limpar carrinho conforme regra
     setIsCartOpen(false);
+    setPedidoSucessoAberto(true);
+    setCarrinho([]); // Limpa o carrinho após pedido
   };
 
   // Adiciona item da oferta com desconto aplicado (20%)
@@ -180,12 +185,16 @@ function App() {
               <button className="vermais-button" onClick={() => destaqueItem && verDetalhes(destaqueItem)}>Ver mais</button>
             </div>
             <div className="valor-total-container">
-              <div className="icone-cesta">
-                <img src="src/assets/Ico_Cesta.svg" alt="Cesta" />
+              <button className="botao-cesta" onClick={abrirCarrinho}>
+                <span className="botao-cesta-icone">
+                  <img src="src/assets/Ico_Cesta.svg" alt="Cesta" />
+                </span>
+                <span className="botao-cesta-texto">Ver cesta</span>
+              </button>
+              <div className="total-pagar">
+                <span className="total-label">Total</span>
+                <span className="valor-preco">R$ {calcularTotalCarrinho().toFixed(2)}</span>
               </div>
-              <span className="valor-texto">Valor total:</span>
-              <span className="valor-preco">R$ {calcularTotalCarrinho().toFixed(2)}</span>
-              <button className="vermais-button" onClick={abrirCarrinho}>Abrir Cesta</button>
             </div>
           </div>
         </div>
@@ -211,10 +220,10 @@ function App() {
             <div className="deal-viewer">
               <Visualizador3DItem 
                 modelPath={`/${dealItem.modelo3d}`}
-                autoRotate={dealItem.viewer?.autoRotate ?? true}
+                autoRotate={true}
                 enableControls={false}
-                scale={dealItem.viewer?.scale ?? 1.0}
-                position={dealItem.viewer?.position ?? [0, -1.8, 0]}
+                scale={(dealItem.viewer?.scale ?? 1.0) * 1.5}
+                position={dealItem.viewer?.position ?? [0, -2.0, 0]}
                 rotation={dealItem.viewer?.rotation ?? [0, 0, 0]}
               />
             </div>
@@ -227,8 +236,8 @@ function App() {
         <div className="cardapio-section">
           <div className='cardapio-header'>
             <h3>DRINKS</h3>
-            <p className='cardapio-subtitle'>Refresque-se com as melhores bebidas</p>
           </div>
+                      <p className='cardapio-subtitle'>Refresque-se com as melhores bebidas</p>
           <div className="itens-loja">
             {itensLoja.filter(i => i.tipo === 'bebida').map(item => (
               <ItemLoja
@@ -241,9 +250,9 @@ function App() {
           </div>
 
           <div className='cardapio-header'>
-            <h3>FOOD</h3>
-            <p className='cardapio-subtitle'>Lanches e salgadinhos para matar a fome</p>
+            <h3>COMIDA</h3>
           </div>
+                      <p className='cardapio-subtitle'>Lanches e salgadinhos para matar a fome</p>
           <div className="itens-loja">
             {itensLoja.filter(i => i.tipo === 'comida').map(item => (
               <ItemLoja
@@ -256,9 +265,9 @@ function App() {
           </div>
 
           <div className='cardapio-header'>
-            <h3>SWEETS</h3>
-            <p className='cardapio-subtitle'>Doces para adoçar seu dia</p>
+            <h3>DOCES</h3>
           </div>
+                      <p className='cardapio-subtitle'>Doces para adoçar seu dia</p>
           <div className="itens-loja">
             {itensLoja.filter(i => i.tipo === 'doces').map(item => (
               <ItemLoja
@@ -272,8 +281,8 @@ function App() {
 
           <div className='cardapio-header'>
             <h3>MERCH</h3>
-            <p className='cardapio-subtitle'>Leve a marca com você</p>
           </div>
+          <p className='cardapio-subtitle'>Ajude o time de robótica do seu coração</p>
           <div className="itens-loja">
             {itensLoja.filter(i => i.tipo === 'merch').map(item => (
               <ItemLoja
@@ -306,6 +315,11 @@ function App() {
         onCheckout={finalizarPedido}
       />
 
+      {/* Popup de pedido efetuado */}
+      <PopupPedidoSucesso
+        aberto={pedidoSucessoAberto}
+        onClose={() => setPedidoSucessoAberto(false)}
+      />
     </div>
   );
 }

@@ -199,9 +199,10 @@ body, html {
 .drop-section {
   background-color: #1c1c1c;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1.5rem 1.5rem  6.5rem; /* mais espaço inferior para o 3D sobrepor */
   margin-bottom: 2rem;
   border: 2px solid #fe5000;
+  position: relative; /* para posicionamento absoluto do viewer */
 }
 
 .timer {
@@ -235,7 +236,7 @@ body, html {
 }
 
 /* ===== OFERTA DO DIA (layout novo) ===== */
-.deal-layout { display: flex; align-items: center; gap: 1rem; }
+.deal-layout { display: flex; align-items: center; gap: 1rem; position: relative; z-index: 1; }
 .deal-info { flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
 .deal-name { font-size: 2.2rem; font-weight: 900; color: #fff; }
 .deal-prices { display: flex; align-items: baseline; gap: 0.75rem; }
@@ -246,7 +247,20 @@ body, html {
   width: fit-content; background: #fe5000; color: #fff; border: none; 
   padding: 0.5rem 0.9rem; border-radius: 6px; font-weight: 700; cursor: pointer; 
 }
-.deal-viewer { width: 280px; height: 220px; }
+.deal-viewer { 
+  width: 560px; 
+  height: 420px; 
+  position: absolute; 
+  right: 0.5rem; 
+  bottom: -2.0rem; 
+  pointer-events: none; /* não bloquear os cliques dos botões */
+  z-index: 0; /* fica atrás do texto da oferta */
+}
+
+@media (max-width: 1024px) {
+  .deal-viewer { width: 420px; height: 320px; bottom: -1.2rem; }
+  .drop-section { padding-bottom: 4.5rem; }
+}
 
 /* ===== ESTILOS PARA LOJA E ITENS ===== */
 
@@ -268,8 +282,9 @@ body, html {
 
 .cardapio-subtitle {
   margin: 0;
-  color: #bbb;
-  font-size: 0.95rem;
+  color: #fff;
+  font-size: 32px;
+  font-weight: bold;
 }
 
 .itens-loja {
@@ -309,7 +324,7 @@ body, html {
 .item-3d-container {
   width: 200px;
   height: 200px;
-  margin-bottom: 1rem;
+  justify-content: space-between; /* No change needed here */
   border-radius: 8px;
   overflow: hidden;
   background: transparent;
@@ -333,6 +348,22 @@ body, html {
 }
 
 .item-buttons-simple {
+.botao-cesta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.botao-cesta-icone {
+  width: 36px; height: 36px; border-radius: 8px; background: #fe5000; display: grid; place-items: center;
+}
+.botao-cesta-icone img { width: 22px; filter: brightness(0) invert(1); }
+.botao-cesta-texto { color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.total-pagar { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
+.total-label { color: #ddd; font-weight: 600; }
   display: flex;
   gap: 1rem;
   width: 100%;

@@ -33,9 +33,9 @@ export const itensLojaSeed: LojaItem[] = [
     categoria: "Salgadinhos",
     emEstoque: true,
     viewer: {
-      scale: 1.1,
+      scale: 2.2,
       position: [0, -1.6, 0],
-      rotation: [0, Math.PI * 0.1, 0],
+      rotation: [0, -Math.PI * 0.5, -Math.PI * 0.5],
       autoRotate: false,
       enableControls: true,
     }
