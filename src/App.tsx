@@ -1,25 +1,21 @@
-// src/App.tsx
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { Visualizador3DItem } from './components/Visualizador3DItem';
-import ItemLoja from './components/ItemLoja';
+import { ItemLoja } from './components/ItemLoja';
 import CartFlyout from './components/CartFlyout';
 import ModalDetalhes from './components/ModalDetalhes';
 import PopupPedidoSucesso from './components/PopupPedidoSucesso';
 import { LojaItem, CarrinhoItem } from './types';
-import { fetchItensLoja, getItemById, parseFeaturedFromLocation, selectFeaturedItemId } from './services/items';
+import { fetchItensLoja, parseFeaturedFromLocation, selectFeaturedItemId, getItemById } from './services/items';
 import { submitOrder } from './services/orders';
 
 function App() {
-  // Drop diário: tempo restante e item em oferta
   const [timeRemaining, setTimeRemaining] = useState('');
   const [nextMidnight, setNextMidnight] = useState<number>(() => {
     const now = new Date();
     const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
     return next.getTime();
   });
-  
-  // Estados para a loja
+
   const [carrinho, setCarrinho] = useState<CarrinhoItem[]>([]);
   const [itemSelecionado, setItemSelecionado] = useState<LojaItem | null>(null);
   const [modalAberto, setModalAberto] = useState(false);
@@ -28,15 +24,11 @@ function App() {
   const destaqueItem = getItemById(itensLoja, destaqueId) ?? itensLoja[0];
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [dealItemId, setDealItemId] = useState<number | undefined>(undefined);
-
-  // Estado para popup de pedido efetuado
   const [pedidoSucessoAberto, setPedidoSucessoAberto] = useState(false);
 
-  // Funções para gerenciar o carrinho
   const adicionarAoCarrinho = (item: LojaItem) => {
     setCarrinho(carrinhoAtual => {
       const itemExistente = carrinhoAtual.find(c => c.item.id === item.id);
-      
       if (itemExistente) {
         return carrinhoAtual.map(c =>
           c.item.id === item.id
@@ -65,7 +57,6 @@ function App() {
     );
   };
 
-  // Controles do carrinho
   const abrirCarrinho = () => setIsCartOpen(true);
   const fecharCarrinho = () => setIsCartOpen(false);
   const incrementarItem = (itemId: number) => {
@@ -82,16 +73,14 @@ function App() {
     console.log('Pedido enviado (stub):', order);
     setIsCartOpen(false);
     setPedidoSucessoAberto(true);
-    setCarrinho([]); // Limpa o carrinho após pedido
+    setCarrinho([]);
   };
 
-  // Adiciona item da oferta com desconto aplicado (20%)
   const adicionarDealAoCarrinho = (item: LojaItem) => {
     const precoComDesconto = Number((item.preco * 0.8).toFixed(2));
     setCarrinho(carrinhoAtual => {
       const existente = carrinhoAtual.find(c => c.item.id === item.id);
       if (existente) {
-        // Atualiza o preço da linha para o valor com desconto e incrementa
         return carrinhoAtual.map(c =>
           c.item.id === item.id
             ? { ...c, item: { ...c.item, preco: precoComDesconto }, quantidadeSelecionada: c.quantidadeSelecionada + 1 }
@@ -102,17 +91,14 @@ function App() {
     });
   };
 
-  // Timer até a próxima virada de dia local e troca do item em oferta
   useEffect(() => {
     const updateTimer = () => {
       const now = Date.now();
       let diff = Math.max(0, nextMidnight - now);
       if (diff === 0) {
-        // recalcula próxima meia-noite e troca o item em oferta
         const d = new Date();
         const next = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, 0);
         setNextMidnight(next.getTime());
-        // Troca do item será tratada abaixo quando itens estiverem carregados
       }
       const h = Math.floor(diff / 3600000);
       diff -= h * 3600000;
@@ -126,23 +112,25 @@ function App() {
     return () => clearInterval(id);
   }, [nextMidnight]);
 
-  // Carregar itens e definir destaque via código (pode alternar para URL quando quiser)
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const itens = await fetchItensLoja();
-      if (!mounted) return;
-      setItensLoja(itens);
-      // selecione via código (altere em selectFeaturedItemId); para URL, use parseFeaturedFromLocation()
-      const idFromCode = selectFeaturedItemId(itens);
-      setDestaqueId(idFromCode);
-      // Define item da oferta do dia com base no dia local
-      if (itens.length > 0) {
-        const now = new Date();
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).getTime();
-        const dayIndex = Math.floor(startOfDay / 86400000);
-        const idx = dayIndex % itens.length;
-        setDealItemId(itens[idx].id);
+      try {
+        const itens = await fetchItensLoja();
+        if (mounted) {
+          setItensLoja(itens);
+          const idFromCode = selectFeaturedItemId(itens);
+          setDestaqueId(idFromCode);
+          if (itens.length > 0) {
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).getTime();
+            const dayIndex = Math.floor(startOfDay / 86400000);
+            const idx = dayIndex % itens.length;
+            setDealItemId(itens[idx].id);
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao carregar itens da loja:", error);
       }
     })();
     return () => {
@@ -154,30 +142,22 @@ function App() {
   const dealPrice = dealItem ? Number((dealItem.preco * 0.8).toFixed(2)) : undefined;
   return (
     <div className="container-principal">
-
-      {/*                                                                                        ===== COLUNA DA ESQUERDA (30%) ===== */}
       <div className="coluna-esquerda">
-
-        {/*                                                                        O modelo 3D agora é um fundo que preenche a coluna */}
         <div className="visualizador-fundo">
           {destaqueItem && (
-            <Visualizador3DItem 
-              modelPath={`/${destaqueItem.modelo3d}`}
-              autoRotate={true}
-              enableControls={true}
-              scale={1.0}
-              position={[0, -2, 0]}
+            <img 
+              className="produto-imagem"
+              src={`src/assets/${destaqueItem.imagem ?? 'Produto_Nao_Encontrado.png'}`}
+              alt={destaqueItem.nome}
+              onError={(e) => (e.currentTarget.src = 'src/assets/Produto_Nao_Encontrado.png')}
             />
           )}
         </div>
-
-        {                                                               /* Todo o conteúdo visível fica agrupado e sobreposto ao fundo */}
         <div className="conteudo-sobreposto">
           <div className="topo">
             <img className="logo" src="src\\assets\\Logo_FSHOP_LOGO.svg" alt="Logo FSHOP" />
             <h2 className="produto-nome">{destaqueItem?.nome ?? ""}</h2>
           </div>
-
           <div className="rodape">
             <p className="preco">{destaqueItem ? `R$ ${destaqueItem.preco.toFixed(2)}` : ""}</p>
             <div className="button-group">
@@ -198,13 +178,9 @@ function App() {
             </div>
           </div>
         </div>
-
       </div>
-
-      {                                                                                     /* ===== COLUNA DA DIREITA (70%) ===== */}
       <div className="coluna-direita">
         <h1>Próximo Drop em: <span className="timer">{timeRemaining}</span></h1>
-       {/* Drop com Timer Dinâmico */}
       <div className="drop-section">
         {dealItem ? (
           <div className="deal-layout">
@@ -218,26 +194,25 @@ function App() {
               <button className="deal-button" onClick={() => adicionarDealAoCarrinho(dealItem)}>Aproveitar</button>
             </div>
             <div className="deal-viewer">
-              <Visualizador3DItem 
-                modelPath={`/${dealItem.modelo3d}`}
-                autoRotate={true}
-                enableControls={false}
-                scale={(dealItem.viewer?.scale ?? 1.0) * 1.5}
-                position={dealItem.viewer?.position ?? [0, -2.0, 0]}
-                rotation={dealItem.viewer?.rotation ?? [0, 0, 0]}
-              />
+              {dealItem && (
+                <img 
+                  className="produto-imagem"
+                  src={`src/assets/${dealItem.imagem ?? 'Produto_Nao_Encontrado.png'}`}
+                  alt={dealItem.nome}
+                  onError={(e) => (e.currentTarget.src = 'src/assets/Produto_Nao_Encontrado.png')}
+                />
+              )}
             </div>
           </div>
         ) : (
           <div className="drop-content"><p className="drop-description">Carregando oferta…</p></div>
         )}
       </div>
-       {/* Cardápio: uma linha por tipo com scroll horizontal */}
         <div className="cardapio-section">
           <div className='cardapio-header'>
             <h3>DRINKS</h3>
           </div>
-                      <p className='cardapio-subtitle'>Refresque-se com as melhores bebidas</p>
+          <p className='cardapio-subtitle'>Refresque-se com as melhores bebidas</p>
           <div className="itens-loja">
             {itensLoja.filter(i => i.tipo === 'bebida').map(item => (
               <ItemLoja
@@ -248,11 +223,10 @@ function App() {
               />
             ))}
           </div>
-
           <div className='cardapio-header'>
             <h3>COMIDA</h3>
           </div>
-                      <p className='cardapio-subtitle'>Lanches e salgadinhos para matar a fome</p>
+          <p className='cardapio-subtitle'>Lanches e salgadinhos para matar a fome</p>
           <div className="itens-loja">
             {itensLoja.filter(i => i.tipo === 'comida').map(item => (
               <ItemLoja
@@ -263,11 +237,10 @@ function App() {
               />
             ))}
           </div>
-
           <div className='cardapio-header'>
             <h3>DOCES</h3>
           </div>
-                      <p className='cardapio-subtitle'>Doces para adoçar seu dia</p>
+          <p className='cardapio-subtitle'>Doces para adoçar seu dia</p>
           <div className="itens-loja">
             {itensLoja.filter(i => i.tipo === 'doces').map(item => (
               <ItemLoja
@@ -278,7 +251,6 @@ function App() {
               />
             ))}
           </div>
-
           <div className='cardapio-header'>
             <h3>MERCH</h3>
           </div>
@@ -295,16 +267,12 @@ function App() {
           </div>
         </div>
       </div>
-
-      {/* Modal de detalhes */}
       <ModalDetalhes
         item={itemSelecionado}
         isOpen={modalAberto}
         onClose={fecharModal}
         onAddToCart={adicionarAoCarrinho}
       />
-
-      {/* Flyout do carrinho */}
       <CartFlyout 
         isOpen={isCartOpen}
         items={carrinho}
@@ -314,8 +282,6 @@ function App() {
         onRemove={removerItem}
         onCheckout={finalizarPedido}
       />
-
-      {/* Popup de pedido efetuado */}
       <PopupPedidoSucesso
         aberto={pedidoSucessoAberto}
         onClose={() => setPedidoSucessoAberto(false)}

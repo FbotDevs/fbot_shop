@@ -1,6 +1,5 @@
 import React from 'react';
 import { LojaItem } from '../types';
-import { Visualizador3DItem } from './Visualizador3DItem';
 
 interface ModalDetalhesProps {
   item: LojaItem | null;
@@ -32,12 +31,11 @@ const ModalDetalhes: React.FC<ModalDetalhesProps> = ({ item, isOpen, onClose, on
         
         <div className="modal-body">
           <div className="modal-left">
-            <div className="modal-3d-viewer">
-              <Visualizador3DItem 
-                modelPath={`/${item.modelo3d}`}
-                autoRotate={false}
-                enableControls={true}
-                scale={1.2}
+            <div className="modal-imagem">
+              <img 
+                src={`src/assets/${item.imagem ?? 'Produto_Nao_Encontrado.png'}`}
+                alt={item.nome}
+                onError={(e) => (e.currentTarget.src = 'src/assets/Produto_Nao_Encontrado.png')}
               />
             </div>
           </div>

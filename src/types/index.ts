@@ -20,14 +20,15 @@ export interface ViewerConfig {
 export interface LojaItem {
     id: number;
     nome: string;
-    modelo3d: string; // Caminho para o arquivo .glb
     preco: number;
     quantidade: number;
     descricao: string;
-    tipo: ItemTipo; // Nova tag para separar por tipo
+    tipo: ItemTipo;
     categoria?: string;
     emEstoque: boolean;
-    viewer?: ViewerConfig; // Configuração visual específica por item
+    viewer?: ViewerConfig;
+    imagem?: string; 
+
 }
 
 // Interface para o carrinho de compras
