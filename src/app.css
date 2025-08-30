@@ -1,3 +1,98 @@
+/* legacy hover message hidden by default; moved into popup for a more discreet UI */
+.card-hover-clickable {
+  position: relative;
+  outline: none;
+}
+
+.card-hover-clickable[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.item-popup-descricao {
+  position: absolute;
+  top: -110px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  max-width: 320px;
+  background: #232323;
+  color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  padding: 1rem 1.2rem;
+  z-index: 10;
+  font-size: 1rem;
+  pointer-events: none;
+  opacity: 0.97;
+  border: 1.5px solid #fe5000;
+  animation: fadeInPopup 0.18s;
+}
+.item-popup-descricao .item-hover-note {
+  margin-top: 0.6rem;
+  font-size: 0.82rem;
+  color: #ffd9c2;
+  opacity: 0.9;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  text-align: center;
+  pointer-events: none;
+}
+.item-popup-descricao .item-popup-add-msg {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: 0.78rem;
+  color: #ffd9c2;
+  opacity: 0.85;
+  font-weight: 500;
+  text-align: left;
+}
+
+.item-quantidade.fora-estoque {
+  color: #ffb2a1; /* warm muted red for out-of-stock */
+  font-weight: 700;
+}
+
+/* Image container and quantity badge overlay */
+.item-imagem-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.item-imagem {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  display: block;
+}
+
+.item-quantidade-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.item-quantidade-badge.fora-estoque {
+  background: rgba(255,86,0,0.12);
+  color: #ffb2a1;
+  border: 1px solid rgba(255,86,0,0.22);
+}
+
+@keyframes fadeInPopup {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 0.97; transform: translateX(-50%) translateY(0); }
+}
 body, html {
   background-color: #101010;
   color: #f0f0f0;
@@ -140,7 +235,8 @@ body, html {
 
 .carrinho-total {
   margin-top: auto;
-  padding: 1rem;
+  padding: 12px;
+  margin-bottom:12px;
   background-color: #1e1e1e;
   border: 1px solid #333;
   border-radius: 12px;
@@ -259,22 +355,13 @@ body, html {
   font-weight: bold;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
+.item-hover-msg { display: none; }
 
-.qrcode-popup-content button:hover {
-  background-color: #e54800;
-  transform: translateY(-2px);
-}
-
-.qrcode-popup-content button:active {
-  transform: translateY(0);
-}
-
-.produtos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 8px; /* Reduced spacing between items */
-  padding: 16px;
-  border-left: 1px solid rgba(255,255,255,0.08);
+/* On large screens cap to max 5 columns */
+@media (min-width: 1100px) {
+  .produtos-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 
 .valor-total-container .total-label { color: #bbb; font-size: 0.75rem; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
@@ -517,15 +604,17 @@ body, html {
 .item-loja-simple {
   background-color: #1c1c1c;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 16px;
   border: 1px solid #333;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  flex: 0 0 260px; 
-  width: 260px;
+  /* make card flexible so grid controls sizing and prevent overlap */
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
   scroll-snap-align: start;
 }
 
@@ -533,6 +622,26 @@ body, html {
   border-color: #fe5000;
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(254, 80, 0, 0.2);
+}
+
+/* Ensure grid children don't overflow their cells and stretch to fill */
+/* .produtos-grid rules consolidated further down in this file. */
+
+.produtos-grid {
+  display: grid;
+  /* responsive columns: each card at least 200px, grow to fill; auto-fill avoids overlap */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 16px;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  align-items: start; /* prevent items from overlapping vertically */
+  justify-items: stretch;
+  /* make each grid row height equal to avoid visual overlap when items have different content heights */
+  grid-auto-rows: 1fr;
+}
+.scroller .item-loja-simple {
+  flex: 0 0 260px;
+  width: 260px;
 }
 
 .item-codigo-simple {
@@ -1050,31 +1159,34 @@ body, html {
 .produtos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 32px; 
+  gap: 16px;
   padding: 16px;
   border-left: 1px solid rgba(255,255,255,0.08);
+  justify-items: stretch;
+  grid-auto-rows: 1fr; /* keep rows uniform to avoid overlap */
 }
 
 .produtos-grid .item-loja {
   border: 1px solid #ccc;
   border-radius: 8px;
-  padding: 8px; /* Reduzido para metade */
+  padding: 16px;
   text-align: center;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transform: scale(0.7); /* Reduz o tamanho para 70% */
 }
 
-.produtos-grid .item-loja img {
-  max-width: 90px; /* Reduced image size */
-  max-height: 90px;
+.produtos-grid .item-loja img,
+.item-imagem, .item-image {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
   margin: 0 auto;
   display: block;
 }
 
 .produtos-grid .item-loja-simple img[src*="Produto_Nao_Encontrado.png"] {
-  max-width: 300px;
-  max-height: 300px;
+  width: 120px;
+  height: 120px;
   opacity: 0.7;
 }
 
@@ -1362,6 +1474,8 @@ body, html {
   border: 1px solid #333;
   text-align: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .item-card:hover {
@@ -1374,6 +1488,19 @@ body, html {
   max-height: 100px;
   margin: 0 auto 1rem;
   display: block;
+}
+
+/* Fixed product image size for cards */
+.item-imagem, .item-image {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin: 0 auto 12px;
+  display: block;
+}
+
+.item-loja-simple, .item-loja-simple * {
+  box-sizing: border-box;
 }
 
 .item-nome {

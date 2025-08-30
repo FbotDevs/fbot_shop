@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api'; // Update with your actual API URL
+const API_URL = 'http://localhost:3000/api';
 
 export const fetchData = async () => {
     try {

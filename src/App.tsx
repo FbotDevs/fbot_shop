@@ -10,11 +10,13 @@ function App() {
   const [codigoProduto, setCodigoProduto] = useState<string>('');
   const [mostrarQRCode, setMostrarQRCode] = useState<boolean>(false);
   const [itemSelecionadoIndex, setItemSelecionadoIndex] = useState<number>(0);
-  const [itemDetalhes, setItemDetalhes] = useState<LojaItem | null>(null); // Estado para o item em detalhes
+  const [itemDetalhes, setItemDetalhes] = useState<LojaItem | null>(null);
   const [tempoPressionado, setTempoPressionado] = useState<number>(0);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
   const adicionarAoCarrinho = (item: LojaItem) => {
+  if ((item.quantidade ?? 0) <= 0) return;
+
     setCarrinho((carrinhoAtual) => {
       const itemExistente = carrinhoAtual.find((c) => c.item.id === item.id);
       return itemExistente
@@ -25,6 +27,19 @@ function App() {
           )
         : [...carrinhoAtual, { item, quantidadeSelecionada: 1 }];
     });
+
+    
+    setItensLoja((lista) =>
+      lista.map((it) =>
+        it.id === item.id
+          ? {
+              ...it,
+              quantidade: Math.max(0, (it.quantidade ?? 0) - 1),
+              emEstoque: Math.max(0, (it.quantidade ?? 0) - 1) > 0,
+            }
+          : it
+      )
+    );
   };
 
   const calcularTotal = () =>
@@ -48,16 +63,32 @@ function App() {
     if (!isNaN(id)) {
       const item = getItemById(itensLoja, id);
       if (item) {
-        setCarrinho((carrinhoAtual) => {
-          const itemExistente = carrinhoAtual.find((c) => c.item.id === item.id);
-          return itemExistente
-            ? carrinhoAtual.map((c) =>
-                c.item.id === item.id
-                  ? { ...c, quantidadeSelecionada: c.quantidadeSelecionada + 1 }
-                  : c
-              )
-            : [...carrinhoAtual, { item, quantidadeSelecionada: 1 }];
-        });
+        if ((item.quantidade ?? 0) <= 0) {
+          alert('Produto indisponível.');
+        } else {
+          setCarrinho((carrinhoAtual) => {
+            const itemExistente = carrinhoAtual.find((c) => c.item.id === item.id);
+            return itemExistente
+              ? carrinhoAtual.map((c) =>
+                  c.item.id === item.id
+                    ? { ...c, quantidadeSelecionada: c.quantidadeSelecionada + 1 }
+                    : c
+                )
+              : [...carrinhoAtual, { item, quantidadeSelecionada: 1 }];
+          });
+
+          setItensLoja((lista) =>
+            lista.map((it) =>
+              it.id === item.id
+                ? {
+                    ...it,
+                    quantidade: Math.max(0, (it.quantidade ?? 0) - 1),
+                    emEstoque: Math.max(0, (it.quantidade ?? 0) - 1) > 0,
+                  }
+                : it
+            )
+          );
+        }
       } else {
         alert('Produto não encontrado.');
       }
@@ -93,8 +124,7 @@ function App() {
       }, 100);
       setIntervalId(id);
     } else if (e.key === 'Escape') {
-      // Fecha os popups ao pressionar Esc
-      if (mostrarQRCode) {
+    if (mostrarQRCode) {
         setMostrarQRCode(false);
       }
       if (itemDetalhes) {
@@ -118,16 +148,14 @@ function App() {
       const itens = await fetchItensLoja();
       setItensLoja(itens);
     })();
-    // Automatically focus on the product code input when the page loads
-    const inputElement = document.getElementById('codigo-produto-input') as HTMLInputElement;
+  const inputElement = document.getElementById('codigo-produto-input') as HTMLInputElement;
     if (inputElement) {
       inputElement.focus();
     }
   }, []);
 
   useEffect(() => {
-    // Refocus on the product code input whenever the cart changes ou popups close
-    const inputElement = document.getElementById('codigo-produto-input') as HTMLInputElement;
+  const inputElement = document.getElementById('codigo-produto-input') as HTMLInputElement;
     if (inputElement) {
       inputElement.focus();
     }
@@ -154,28 +182,65 @@ function App() {
                   <span className="quantidade">Qtd: {quantidadeSelecionada}</span>
                   <button onClick={() => adicionarAoCarrinho(item)}>+</button>
                   <button
-                    onClick={() =>
-                      setCarrinho((cs) =>
-                        cs.map((c) =>
-                          c.item.id === item.id
-                            ? {
-                                ...c,
-                                quantidadeSelecionada: Math.max(
-                                  1,
-                                  c.quantidadeSelecionada - 1
-                                ),
-                              }
-                            : c
-                        )
-                      )
-                    }
+                    onClick={() => {
+                      setCarrinho((cs) => {
+                        const existing = cs.find((c) => c.item.id === item.id);
+                        if (!existing) return cs;
+                        if (existing.quantidadeSelecionada <= 1) {
+                          // remove entry and return 1 unit to stock
+                          setItensLoja((lista) =>
+                            lista.map((it) =>
+                              it.id === item.id
+                                ? {
+                                    ...it,
+                                    quantidade: (it.quantidade ?? 0) + 1,
+                                    emEstoque: ((it.quantidade ?? 0) + 1) > 0,
+                                  }
+                                : it
+                            )
+                          );
+                          return cs.filter((c) => c.item.id !== item.id);
+                        }
+                        // decrement in cart and return 1 unit to stock
+                        setItensLoja((lista) =>
+                          lista.map((it) =>
+                            it.id === item.id
+                              ? {
+                                  ...it,
+                                  quantidade: (it.quantidade ?? 0) + 1,
+                                  emEstoque: ((it.quantidade ?? 0) + 1) > 0,
+                                }
+                              : it
+                          )
+                        );
+                        return cs.map((c) =>
+                          c.item.id === item.id ? { ...c, quantidadeSelecionada: c.quantidadeSelecionada - 1 } : c
+                        );
+                      });
+                    }}
                   >
                     -
                   </button>
                   <button
-                    onClick={() =>
-                      setCarrinho((cs) => cs.filter((c) => c.item.id !== item.id))
-                    }
+                    onClick={() => {
+                      setCarrinho((cs) => {
+                        const removed = cs.find((c) => c.item.id === item.id);
+                        if (removed) {
+                          setItensLoja((lista) =>
+                            lista.map((it) =>
+                              it.id === item.id
+                                ? {
+                                    ...it,
+                                    quantidade: (it.quantidade ?? 0) + removed.quantidadeSelecionada,
+                                    emEstoque: ((it.quantidade ?? 0) + removed.quantidadeSelecionada) > 0,
+                                  }
+                                : it
+                            )
+                          );
+                        }
+                        return cs.filter((c) => c.item.id !== item.id);
+                      });
+                    }}
                     className="botao-lixeira"
                   >
                     🗑️
@@ -191,35 +256,17 @@ function App() {
             Finalizar Compra
           </button>
         </div>
-        <div className="adicionar-por-codigo">
-          <input
-            id="codigo-produto-input" // Added ID for easier focus management
-            type="text"
-            value={codigoProduto}
-            onChange={(e) => setCodigoProduto(e.target.value)}
-            placeholder="Código do produto"
-          />
-          <button onClick={handleAdicionarPorCodigo}>+</button>
-        </div>
       </div>
       <div className="coluna-direita">
         <h1>Catálogo</h1>
         <div className="produtos-grid">
           {itensLoja.map((item) => (
-            <div key={item.id} className="item-card">
-              <img src={item.imagem} alt={item.nome} className="item-image" />
-              <h3 className="item-nome">{item.nome}</h3>
-              <p className="item-preco">R$ {item.preco.toFixed(2)}</p>
-              <p className="item-codigo">Código: {item.id}</p>
-              <div className="item-buttons">
-                <button onClick={() => adicionarAoCarrinho(item)} className="btn-adicionar">
-                  Adicionar
-                </button>
-                <button onClick={() => handleVerDetalhes(item)} className="btn-detalhes">
-                  Detalhes
-                </button>
-              </div>
-            </div>
+            <ItemLoja
+              key={item.id}
+              item={item}
+              onAddToCart={adicionarAoCarrinho}
+              onViewDetails={handleVerDetalhes}
+            />
           ))}
         </div>
       </div>
