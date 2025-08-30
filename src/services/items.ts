@@ -14,7 +14,7 @@ export const itensLojaSeed: LojaItem[] = [
   {
     id: 1,
     nome: "Coca-Cola Lata",
-    imagem: "coca_cola_soda_can.png",
+    imagem: "https://www.thebakers.com.br/wp-content/uploads/2019/05/coca-600x540-600x540.png", 
     preco: 6.0,
     quantidade: 50,
     descricao:
@@ -26,7 +26,7 @@ export const itensLojaSeed: LojaItem[] = [
   {
     id: 6,
     nome: "Doritos",
-    imagem: "doritos_package.png",
+    imagem: "https://phygital-files.mercafacil.com/catalogo/uploads/produto/salgadinho_doritos_queijo_nacho_140g_aab7c3ac-2b4d-4b14-a69c-20c43ddb375f.jpg",
     preco: 6.5,
     quantidade: 40,
     descricao: "Salgadinho Doritos sabor nacho cheese. Crocante e saboroso.",
@@ -37,7 +37,7 @@ export const itensLojaSeed: LojaItem[] = [
   {
     id: 7,
     nome: "Monster Energy",
-    imagem: "monster_energy_drink.png",
+    imagem: "https://instamart-media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,h_600/c1esxs0nvjxtb2ngtnlx", 
     preco: 18.0,
     quantidade: 15,
     descricao:
@@ -49,7 +49,7 @@ export const itensLojaSeed: LojaItem[] = [
   {
     id: 4,
     nome: "Café",
-    imagem: "cofee_mug.png",
+    imagem: "https://static.vecteezy.com/system/resources/previews/049/376/953/non_2x/cup-of-coffee-with-creamy-frothy-top-and-coffee-beans-free-png.png", 
     preco: 3.0,
     quantidade: 100,
     descricao:
@@ -61,7 +61,7 @@ export const itensLojaSeed: LojaItem[] = [
   {
     id: 5,
     nome: "Batata Lays",
-    imagem: "lays_potato_chips.png",
+    imagem: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiyLe_vaeumtKWuR-dkiyEoIBjUQJK0Bgoww&s", // Updated to URL
     preco: 6.0,
     quantidade: 50,
     descricao:
@@ -73,7 +73,7 @@ export const itensLojaSeed: LojaItem[] = [
   {
     id: 8,
     nome: "Crunch Bar",
-    imagem: "chocolate_crunch_bar.png",
+    imagem: "https://allcitycandy.com/cdn/shop/files/crunch.png?v=1739163400", // Updated to URL
     preco: 6.5,
     quantidade: 40,
     descricao: "Barra de chocolate crocante e saborosa.",

@@ -5,9 +5,10 @@ interface ItemLojaProps {
   item: LojaItem;
   onAddToCart: (item: LojaItem) => void;
   onViewDetails: (item: LojaItem) => void;
+  className?: string; // Adicione a prop className
 }
 
-export const ItemLoja: React.FC<ItemLojaProps> = ({ item, onAddToCart, onViewDetails }) => {
+export const ItemLoja: React.FC<ItemLojaProps> = ({ item, onAddToCart, onViewDetails, className }) => {
   const handleAddToCart = () => {
     if (item.emEstoque) {
       onAddToCart(item);
@@ -15,7 +16,7 @@ export const ItemLoja: React.FC<ItemLojaProps> = ({ item, onAddToCart, onViewDet
   };
 
   return (
-    <div className="item-loja-simple">
+    <div className={`item-loja-simple ${className || ''}`.trim()}>
       <img
         className="item-imagem"
         src={`src/assets/${item.imagem ?? 'Produto_Nao_Encontrado.png'}`}
@@ -24,6 +25,7 @@ export const ItemLoja: React.FC<ItemLojaProps> = ({ item, onAddToCart, onViewDet
       />
       <div className="item-info-simple">
         <h3 className="item-nome-simple">{item.nome}</h3>
+        <span className="item-codigo-simple">Código: {item.id}</span>
         <span className="item-preco-simple">R$ {item.preco.toFixed(2)}</span>
       </div>
       <div className="item-buttons-simple">
@@ -36,9 +38,9 @@ export const ItemLoja: React.FC<ItemLojaProps> = ({ item, onAddToCart, onViewDet
         </button>
         <button 
           className="btn-detalhes-simple"
-          onClick={() => onViewDetails(item)}
+          onClick={() => onViewDetails(item)} // Chama corretamente a função
         >
-          Detalhes
+          Detalhes  
         </button>
       </div>
     </div>

@@ -4,7 +4,7 @@ export interface LojaItem {
   nome: string;
   preco: number;
   tipo: string;
-  imagem?: string; // Caminho da imagem 2D
+  imagem?: string;
   descricao?: string;
   quantidade?: number;
   categoria?: string;
