@@ -53,9 +53,7 @@ export const ItemLoja: React.FC<ItemLojaProps> = ({ item, onAddToCart, onViewDet
           draggable={false}
           style={{ pointerEvents: 'none' }}
         />
-        <div className={`item-quantidade-badge ${((item.quantidade ?? 0) <= 0) ? 'fora-estoque' : ''}`}>
-          {((item.quantidade ?? 0) <= 0) ? 'Indisponível' : `Qtd: ${item.quantidade ?? 0}`}
-        </div>
+  {/* quantidade badge removida conforme ajustes de UI */}
       </div>
       <div className="item-info-simple">
         <h3 className="item-nome-simple">{item.nome}</h3>

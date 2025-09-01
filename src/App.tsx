@@ -9,13 +9,13 @@ function App() {
   const [itensLoja, setItensLoja] = useState<LojaItem[]>([]);
   const [codigoProduto, setCodigoProduto] = useState<string>('');
   const [mostrarQRCode, setMostrarQRCode] = useState<boolean>(false);
-  const [itemSelecionadoIndex, setItemSelecionadoIndex] = useState<number>(0);
   const [itemDetalhes, setItemDetalhes] = useState<LojaItem | null>(null);
   const [tempoPressionado, setTempoPressionado] = useState<number>(0);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
   const adicionarAoCarrinho = (item: LojaItem) => {
-  if ((item.quantidade ?? 0) <= 0) return;
+    const lojaItem = itensLoja.find((it) => it.id === item.id);
+    if (!lojaItem || (lojaItem.quantidade ?? 0) <= 0 || !lojaItem.emEstoque) return;
 
     setCarrinho((carrinhoAtual) => {
       const itemExistente = carrinhoAtual.find((c) => c.item.id === item.id);
@@ -28,7 +28,6 @@ function App() {
         : [...carrinhoAtual, { item, quantidadeSelecionada: 1 }];
     });
 
-    
     setItensLoja((lista) =>
       lista.map((it) =>
         it.id === item.id
@@ -37,6 +36,48 @@ function App() {
               quantidade: Math.max(0, (it.quantidade ?? 0) - 1),
               emEstoque: Math.max(0, (it.quantidade ?? 0) - 1) > 0,
             }
+          : it
+      )
+    );
+  };
+
+  const handleDecrement = (itemId: number) => {
+    const existing = carrinho.find((c) => c.item.id === itemId);
+    if (!existing) return;
+
+  if (existing.quantidadeSelecionada <= 1) {
+      setCarrinho((prev) => prev.filter((c) => c.item.id !== itemId));
+      setItensLoja((prev) =>
+        prev.map((it) =>
+          it.id === itemId
+            ? { ...it, quantidade: (it.quantidade ?? 0) + 1, emEstoque: ((it.quantidade ?? 0) + 1) > 0 }
+            : it
+        )
+      );
+    } else {
+      
+      setCarrinho((prev) =>
+        prev.map((c) => (c.item.id === itemId ? { ...c, quantidadeSelecionada: c.quantidadeSelecionada - 1 } : c))
+      );
+      setItensLoja((prev) =>
+        prev.map((it) =>
+          it.id === itemId
+            ? { ...it, quantidade: (it.quantidade ?? 0) + 1, emEstoque: ((it.quantidade ?? 0) + 1) > 0 }
+            : it
+        )
+      );
+    }
+  };
+
+  const handleRemove = (itemId: number) => {
+    const existing = carrinho.find((c) => c.item.id === itemId);
+    if (!existing) return;
+    const qtyToReturn = existing.quantidadeSelecionada;
+    setCarrinho((prev) => prev.filter((c) => c.item.id !== itemId));
+    setItensLoja((prev) =>
+      prev.map((it) =>
+        it.id === itemId
+          ? { ...it, quantidade: (it.quantidade ?? 0) + qtyToReturn, emEstoque: ((it.quantidade ?? 0) + qtyToReturn) > 0 }
           : it
       )
     );
@@ -54,7 +95,7 @@ function App() {
       setMostrarQRCode(true);
       setCarrinho([]);
     } else {
-      alert('O carrinho está vazio.');
+  alert('O carrinho está vazio.');
     }
   };
 
@@ -92,29 +133,24 @@ function App() {
       } else {
         alert('Produto não encontrado.');
       }
-      setCodigoProduto(''); // Clear input after adding
+      setCodigoProduto('');
     } else {
       alert('Código inválido.');
     }
   };
 
-  const handleVerDetalhes = (item: LojaItem) => {
-    setItemDetalhes(item); // Define o item selecionado para exibir os detalhes
-  };
-
-  const fecharDetalhes = () => {
-    setItemDetalhes(null); // Fecha os detalhes
-  };
+  const handleVerDetalhes = (item: LojaItem) => setItemDetalhes(item);
+  const fecharDetalhes = () => setItemDetalhes(null);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleAdicionarPorCodigo(); // Add item by code on Enter
+      handleAdicionarPorCodigo();
     } else if (e.key === ' ' && !intervalId) {
       e.preventDefault();
       const id = setInterval(() => {
         setTempoPressionado((tempo) => {
           if (tempo >= 1.5) {
-            finalizarCompra(); // Finalize purchase after holding Space
+            finalizarCompra();
             clearInterval(id);
             setIntervalId(null);
             return 0;
@@ -180,69 +216,15 @@ function App() {
                 <span>{item.nome}</span>
                 <div className="carrinho-acoes">
                   <span className="quantidade">Qtd: {quantidadeSelecionada}</span>
-                  <button onClick={() => adicionarAoCarrinho(item)}>+</button>
                   <button
-                    onClick={() => {
-                      setCarrinho((cs) => {
-                        const existing = cs.find((c) => c.item.id === item.id);
-                        if (!existing) return cs;
-                        if (existing.quantidadeSelecionada <= 1) {
-                          // remove entry and return 1 unit to stock
-                          setItensLoja((lista) =>
-                            lista.map((it) =>
-                              it.id === item.id
-                                ? {
-                                    ...it,
-                                    quantidade: (it.quantidade ?? 0) + 1,
-                                    emEstoque: ((it.quantidade ?? 0) + 1) > 0,
-                                  }
-                                : it
-                            )
-                          );
-                          return cs.filter((c) => c.item.id !== item.id);
-                        }
-                        // decrement in cart and return 1 unit to stock
-                        setItensLoja((lista) =>
-                          lista.map((it) =>
-                            it.id === item.id
-                              ? {
-                                  ...it,
-                                  quantidade: (it.quantidade ?? 0) + 1,
-                                  emEstoque: ((it.quantidade ?? 0) + 1) > 0,
-                                }
-                              : it
-                          )
-                        );
-                        return cs.map((c) =>
-                          c.item.id === item.id ? { ...c, quantidadeSelecionada: c.quantidadeSelecionada - 1 } : c
-                        );
-                      });
-                    }}
+                    onClick={() => adicionarAoCarrinho(item)}
+                    disabled={!(itensLoja.find((it) => it.id === item.id)?.emEstoque && (itensLoja.find((it) => it.id === item.id)?.quantidade ?? 0) > 0)}
+                    title={! (itensLoja.find((it) => it.id === item.id)?.emEstoque && (itensLoja.find((it) => it.id === item.id)?.quantidade ?? 0) > 0) ? 'Item indisponível' : 'Adicionar mais'}
                   >
-                    -
+                    +
                   </button>
-                  <button
-                    onClick={() => {
-                      setCarrinho((cs) => {
-                        const removed = cs.find((c) => c.item.id === item.id);
-                        if (removed) {
-                          setItensLoja((lista) =>
-                            lista.map((it) =>
-                              it.id === item.id
-                                ? {
-                                    ...it,
-                                    quantidade: (it.quantidade ?? 0) + removed.quantidadeSelecionada,
-                                    emEstoque: ((it.quantidade ?? 0) + removed.quantidadeSelecionada) > 0,
-                                  }
-                                : it
-                            )
-                          );
-                        }
-                        return cs.filter((c) => c.item.id !== item.id);
-                      });
-                    }}
-                    className="botao-lixeira"
-                  >
+                  <button onClick={() => handleDecrement(item.id)}>-</button>
+                  <button onClick={() => handleRemove(item.id)} className="botao-lixeira">
                     🗑️
                   </button>
                 </div>
@@ -280,7 +262,7 @@ function App() {
           <div className="qrcode-popup-content">
             <h2>Escaneie o QR Code para efetuar o pagamento</h2>
             <img
-              src="https://via.placeholder.com/200"
+              src="src/assets/QR_CODE_Placeholder.png"
               alt="QR Code Placeholder"
               className="qrcode-image"
             />
