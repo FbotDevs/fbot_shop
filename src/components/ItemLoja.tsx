@@ -19,7 +19,7 @@ export const ItemLoja: React.FC<ItemLojaProps> = ({ item, onAddToCart, onViewDet
 
   return (
     <div
-      className={`item-loja-simple card-hover-clickable ${className || ''}`.trim()}
+      className={`item-loja-simple card-hover-clickable ${className || ''} cursor-target`.trim()}
       tabIndex={0}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

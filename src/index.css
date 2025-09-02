@@ -11,3 +11,13 @@ box-sizing: border-box;
   height: 100vh;
   overflow-y: hidden;
 }
+
+/* hide native cursor on elements marked as cursor-target so custom cursor shows alone */
+.cursor-target, .cursor-target * {
+  cursor: none !important;
+}
+
+/* don't hide on touch devices to preserve expected behavior */
+@media (pointer: coarse) {
+  .cursor-target, .cursor-target * { cursor: auto !important; }
+}

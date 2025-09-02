@@ -5,6 +5,7 @@ import { LojaItem, CarrinhoItem } from './types';
 import { fetchItensLoja, getItemById } from './services/items';
 
 function App() {
+
   const [carrinho, setCarrinho] = useState<CarrinhoItem[]>([]);
   const [itensLoja, setItensLoja] = useState<LojaItem[]>([]);
   const [codigoProduto, setCodigoProduto] = useState<string>('');
@@ -198,90 +199,90 @@ function App() {
   }, [carrinho, mostrarQRCode, itemDetalhes]);
 
   return (
-    <div
-      className="container-principal"
-      onKeyDown={handleKeyDown}
-      onKeyUp={handleKeyUp}
-      tabIndex={0}
-    >
-      <div className="coluna-esquerda">
-        <img src="src/assets/Logo_FSHOP_LOGO.svg" alt="FShop Logo" className="logo-fshop" />
-        <h2>Carrinho</h2>
-        <div className="carrinho-itens">
-          {carrinho.length === 0 ? (
-            <p>Carrinho vazio.</p>
-          ) : (
-            carrinho.map(({ item, quantidadeSelecionada }) => (
-              <div key={item.id} className="carrinho-item">
-                <span>{item.nome}</span>
-                <div className="carrinho-acoes">
-                  <span className="quantidade">Qtd: {quantidadeSelecionada}</span>
-                  <button
-                    onClick={() => adicionarAoCarrinho(item)}
-                    disabled={!(itensLoja.find((it) => it.id === item.id)?.emEstoque && (itensLoja.find((it) => it.id === item.id)?.quantidade ?? 0) > 0)}
-                    title={! (itensLoja.find((it) => it.id === item.id)?.emEstoque && (itensLoja.find((it) => it.id === item.id)?.quantidade ?? 0) > 0) ? 'Item indisponível' : 'Adicionar mais'}
-                  >
-                    +
-                  </button>
-                  <button onClick={() => handleDecrement(item.id)}>-</button>
-                  <button onClick={() => handleRemove(item.id)} className="botao-lixeira">
-                    🗑️
-                  </button>
+    <><div
+        className="container-principal"
+        onKeyDown={handleKeyDown}
+        onKeyUp={handleKeyUp}
+        tabIndex={0}
+      >
+        <div className="coluna-esquerda">
+          <img src="src/assets/Logo_FSHOP_LOGO.svg" alt="FShop Logo" className="logo-fshop" />
+          <h2>Carrinho</h2>
+          <div className="carrinho-itens">
+            {carrinho.length === 0 ? (
+              <p>Carrinho vazio.</p>
+            ) : (
+              carrinho.map(({ item, quantidadeSelecionada }) => (
+                <div key={item.id} className="carrinho-item">
+                  <span>{item.nome}</span>
+                  <div className="carrinho-acoes">
+                    <span className="quantidade">Qtd: {quantidadeSelecionada}</span>
+                    <button
+                      onClick={() => adicionarAoCarrinho(item)}
+                      className="cursor-target"
+                      disabled={!(itensLoja.find((it) => it.id === item.id)?.emEstoque && (itensLoja.find((it) => it.id === item.id)?.quantidade ?? 0) > 0)}
+                      title={!(itensLoja.find((it) => it.id === item.id)?.emEstoque && (itensLoja.find((it) => it.id === item.id)?.quantidade ?? 0) > 0) ? 'Item indisponível' : 'Adicionar mais'}
+                    >
+                      +
+                    </button>
+                    <button className="cursor-target" onClick={() => handleDecrement(item.id)}>-</button>
+                    <button className="cursor-target botao-lixeira" onClick={() => handleRemove(item.id)}>
+                      🗑️
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
-        <div className="carrinho-total">
-          <h3>Total: R$ {calcularTotal().toFixed(2)}</h3>
-          <button className="finalizar-compra" onClick={finalizarCompra}>
-            Finalizar Compra
-          </button>
-        </div>
-      </div>
-      <div className="coluna-direita">
-        <h1>Catálogo</h1>
-        <div className="produtos-grid">
-          {itensLoja.map((item) => (
-            <ItemLoja
-              key={item.id}
-              item={item}
-              onAddToCart={adicionarAoCarrinho}
-              onViewDetails={handleVerDetalhes}
-            />
-          ))}
-        </div>
-      </div>
-      {tempoPressionado > 0 && (
-        <div className="carregamento">
-          <div className="carregamento-barra" style={{ width: `${(tempoPressionado / 1.5) * 100}%` }} />
-        </div>
-      )}
-      {mostrarQRCode && (
-        <div className="qrcode-popup">
-          <div className="qrcode-popup-content">
-            <h2>Escaneie o QR Code para efetuar o pagamento</h2>
-            <img
-              src="src/assets/QR_CODE_Placeholder.png"
-              alt="QR Code Placeholder"
-              className="qrcode-image"
-            />
-            <button onClick={() => setMostrarQRCode(false)}>Fechar</button>
+              ))
+            )}
+          </div>
+          <div className="carrinho-total">
+            <h3>Total: R$ {calcularTotal().toFixed(2)}</h3>
+            <button className="finalizar-compra cursor-target" onClick={finalizarCompra}>
+              Finalizar Compra
+            </button>
           </div>
         </div>
-      )}
-      {itemDetalhes && (
-        <div className="detalhes-popup">
-          <div className="detalhes-popup-content">
-            <h2>{itemDetalhes.nome}</h2>
-            <p>{itemDetalhes.descricao}</p>
-            <p>Preço: R$ {itemDetalhes.preco.toFixed(2)}</p>
-            <button onClick={fecharDetalhes}>Fechar</button>
+        <div className="coluna-direita">
+          <h1>Catálogo</h1>
+          <div className="produtos-grid">
+            {itensLoja.map((item) => (
+              <ItemLoja
+                key={item.id}
+                item={item}
+                onAddToCart={adicionarAoCarrinho}
+                onViewDetails={handleVerDetalhes} />
+            ))}
           </div>
         </div>
-      )}
-    </div>
+        {tempoPressionado > 0 && (
+          <div className="carregamento">
+            <div className="carregamento-barra" style={{ width: `${(tempoPressionado / 1.5) * 100}%` }} />
+          </div>
+        )}
+        {mostrarQRCode && (
+          <div className="qrcode-popup">
+            <div className="qrcode-popup-content">
+              <h2>Escaneie o QR Code para efetuar o pagamento</h2>
+              <img
+                src="src\assets\QR_CODE_Placeholder.png"
+                alt="QR Code Placeholder"
+                className="qrcode-image" />
+              <button className="cursor-target" onClick={() => setMostrarQRCode(false)}>Fechar</button>
+            </div>
+          </div>
+        )}
+        {itemDetalhes && (
+          <div className="detalhes-popup">
+            <div className="detalhes-popup-content">
+              <h2>{itemDetalhes.nome}</h2>
+              <p>{itemDetalhes.descricao}</p>
+              <p>Preço: R$ {itemDetalhes.preco.toFixed(2)}</p>
+              <button className="cursor-target" onClick={fecharDetalhes}>Fechar</button>
+            </div>
+          </div>
+        )}
+      </div></>
   );
 }
 
 export default App;
+
