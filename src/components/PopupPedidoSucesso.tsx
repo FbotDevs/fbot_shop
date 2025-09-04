@@ -30,7 +30,7 @@ const PopupPedidoSucesso: React.FC<PopupPedidoSucessoProps> = ({ aberto, onClose
       }}>
         <h2 style={{ color: '#28a745', marginBottom: 16 }}>Pedido realizado com sucesso!</h2>
         <p style={{ color: '#222', marginBottom: 24 }}>Seu pedido foi efetuado e está sendo processado.</p>
-        <button onClick={onClose} style={{
+  <button className="cursor-target" onClick={onClose} style={{
           background: '#fe5000',
           color: '#fff',
           border: 'none',

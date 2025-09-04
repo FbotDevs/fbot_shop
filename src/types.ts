@@ -1,4 +1,3 @@
-// src/types.ts
 export interface LojaItem {
   id: number;
   nome: string;

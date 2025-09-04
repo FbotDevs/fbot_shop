@@ -5,16 +5,19 @@ import { LojaItem, CarrinhoItem } from './types';
 import { fetchItensLoja, getItemById } from './services/items';
 
 function App() {
+
   const [carrinho, setCarrinho] = useState<CarrinhoItem[]>([]);
   const [itensLoja, setItensLoja] = useState<LojaItem[]>([]);
   const [codigoProduto, setCodigoProduto] = useState<string>('');
   const [mostrarQRCode, setMostrarQRCode] = useState<boolean>(false);
-  const [itemSelecionadoIndex, setItemSelecionadoIndex] = useState<number>(0);
-  const [itemDetalhes, setItemDetalhes] = useState<LojaItem | null>(null); // Estado para o item em detalhes
+  const [itemDetalhes, setItemDetalhes] = useState<LojaItem | null>(null);
   const [tempoPressionado, setTempoPressionado] = useState<number>(0);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
   const adicionarAoCarrinho = (item: LojaItem) => {
+    const lojaItem = itensLoja.find((it) => it.id === item.id);
+    if (!lojaItem || (lojaItem.quantidade ?? 0) <= 0 || !lojaItem.emEstoque) return;
+
     setCarrinho((carrinhoAtual) => {
       const itemExistente = carrinhoAtual.find((c) => c.item.id === item.id);
       return itemExistente
@@ -25,6 +28,60 @@ function App() {
           )
         : [...carrinhoAtual, { item, quantidadeSelecionada: 1 }];
     });
+
+    setItensLoja((lista) =>
+      lista.map((it) =>
+        it.id === item.id
+          ? {
+              ...it,
+              quantidade: Math.max(0, (it.quantidade ?? 0) - 1),
+              emEstoque: Math.max(0, (it.quantidade ?? 0) - 1) > 0,
+            }
+          : it
+      )
+    );
+  };
+
+  const handleDecrement = (itemId: number) => {
+    const existing = carrinho.find((c) => c.item.id === itemId);
+    if (!existing) return;
+
+  if (existing.quantidadeSelecionada <= 1) {
+      setCarrinho((prev) => prev.filter((c) => c.item.id !== itemId));
+      setItensLoja((prev) =>
+        prev.map((it) =>
+          it.id === itemId
+            ? { ...it, quantidade: (it.quantidade ?? 0) + 1, emEstoque: ((it.quantidade ?? 0) + 1) > 0 }
+            : it
+        )
+      );
+    } else {
+      
+      setCarrinho((prev) =>
+        prev.map((c) => (c.item.id === itemId ? { ...c, quantidadeSelecionada: c.quantidadeSelecionada - 1 } : c))
+      );
+      setItensLoja((prev) =>
+        prev.map((it) =>
+          it.id === itemId
+            ? { ...it, quantidade: (it.quantidade ?? 0) + 1, emEstoque: ((it.quantidade ?? 0) + 1) > 0 }
+            : it
+        )
+      );
+    }
+  };
+
+  const handleRemove = (itemId: number) => {
+    const existing = carrinho.find((c) => c.item.id === itemId);
+    if (!existing) return;
+    const qtyToReturn = existing.quantidadeSelecionada;
+    setCarrinho((prev) => prev.filter((c) => c.item.id !== itemId));
+    setItensLoja((prev) =>
+      prev.map((it) =>
+        it.id === itemId
+          ? { ...it, quantidade: (it.quantidade ?? 0) + qtyToReturn, emEstoque: ((it.quantidade ?? 0) + qtyToReturn) > 0 }
+          : it
+      )
+    );
   };
 
   const calcularTotal = () =>
@@ -39,7 +96,7 @@ function App() {
       setMostrarQRCode(true);
       setCarrinho([]);
     } else {
-      alert('O carrinho está vazio.');
+  alert('O carrinho está vazio.');
     }
   };
 
@@ -48,42 +105,53 @@ function App() {
     if (!isNaN(id)) {
       const item = getItemById(itensLoja, id);
       if (item) {
-        setCarrinho((carrinhoAtual) => {
-          const itemExistente = carrinhoAtual.find((c) => c.item.id === item.id);
-          return itemExistente
-            ? carrinhoAtual.map((c) =>
-                c.item.id === item.id
-                  ? { ...c, quantidadeSelecionada: c.quantidadeSelecionada + 1 }
-                  : c
-              )
-            : [...carrinhoAtual, { item, quantidadeSelecionada: 1 }];
-        });
+        if ((item.quantidade ?? 0) <= 0) {
+          alert('Produto indisponível.');
+        } else {
+          setCarrinho((carrinhoAtual) => {
+            const itemExistente = carrinhoAtual.find((c) => c.item.id === item.id);
+            return itemExistente
+              ? carrinhoAtual.map((c) =>
+                  c.item.id === item.id
+                    ? { ...c, quantidadeSelecionada: c.quantidadeSelecionada + 1 }
+                    : c
+                )
+              : [...carrinhoAtual, { item, quantidadeSelecionada: 1 }];
+          });
+
+          setItensLoja((lista) =>
+            lista.map((it) =>
+              it.id === item.id
+                ? {
+                    ...it,
+                    quantidade: Math.max(0, (it.quantidade ?? 0) - 1),
+                    emEstoque: Math.max(0, (it.quantidade ?? 0) - 1) > 0,
+                  }
+                : it
+            )
+          );
+        }
       } else {
         alert('Produto não encontrado.');
       }
-      setCodigoProduto(''); // Clear input after adding
+      setCodigoProduto('');
     } else {
       alert('Código inválido.');
     }
   };
 
-  const handleVerDetalhes = (item: LojaItem) => {
-    setItemDetalhes(item); // Define o item selecionado para exibir os detalhes
-  };
-
-  const fecharDetalhes = () => {
-    setItemDetalhes(null); // Fecha os detalhes
-  };
+  const handleVerDetalhes = (item: LojaItem) => setItemDetalhes(item);
+  const fecharDetalhes = () => setItemDetalhes(null);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleAdicionarPorCodigo(); // Add item by code on Enter
+      handleAdicionarPorCodigo();
     } else if (e.key === ' ' && !intervalId) {
       e.preventDefault();
       const id = setInterval(() => {
         setTempoPressionado((tempo) => {
           if (tempo >= 1.5) {
-            finalizarCompra(); // Finalize purchase after holding Space
+            finalizarCompra();
             clearInterval(id);
             setIntervalId(null);
             return 0;
@@ -93,8 +161,7 @@ function App() {
       }, 100);
       setIntervalId(id);
     } else if (e.key === 'Escape') {
-      // Fecha os popups ao pressionar Esc
-      if (mostrarQRCode) {
+    if (mostrarQRCode) {
         setMostrarQRCode(false);
       }
       if (itemDetalhes) {
@@ -118,141 +185,104 @@ function App() {
       const itens = await fetchItensLoja();
       setItensLoja(itens);
     })();
-    // Automatically focus on the product code input when the page loads
-    const inputElement = document.getElementById('codigo-produto-input') as HTMLInputElement;
+  const inputElement = document.getElementById('codigo-produto-input') as HTMLInputElement;
     if (inputElement) {
       inputElement.focus();
     }
   }, []);
 
   useEffect(() => {
-    // Refocus on the product code input whenever the cart changes ou popups close
-    const inputElement = document.getElementById('codigo-produto-input') as HTMLInputElement;
+  const inputElement = document.getElementById('codigo-produto-input') as HTMLInputElement;
     if (inputElement) {
       inputElement.focus();
     }
   }, [carrinho, mostrarQRCode, itemDetalhes]);
 
   return (
-    <div
-      className="container-principal"
-      onKeyDown={handleKeyDown}
-      onKeyUp={handleKeyUp}
-      tabIndex={0}
-    >
-      <div className="coluna-esquerda">
-        <img src="src/assets/Logo_FSHOP_LOGO.svg" alt="FShop Logo" className="logo-fshop" />
-        <h2>Carrinho</h2>
-        <div className="carrinho-itens">
-          {carrinho.length === 0 ? (
-            <p>Carrinho vazio.</p>
-          ) : (
-            carrinho.map(({ item, quantidadeSelecionada }) => (
-              <div key={item.id} className="carrinho-item">
-                <span>{item.nome}</span>
-                <div className="carrinho-acoes">
-                  <span className="quantidade">Qtd: {quantidadeSelecionada}</span>
-                  <button onClick={() => adicionarAoCarrinho(item)}>+</button>
-                  <button
-                    onClick={() =>
-                      setCarrinho((cs) =>
-                        cs.map((c) =>
-                          c.item.id === item.id
-                            ? {
-                                ...c,
-                                quantidadeSelecionada: Math.max(
-                                  1,
-                                  c.quantidadeSelecionada - 1
-                                ),
-                              }
-                            : c
-                        )
-                      )
-                    }
-                  >
-                    -
-                  </button>
-                  <button
-                    onClick={() =>
-                      setCarrinho((cs) => cs.filter((c) => c.item.id !== item.id))
-                    }
-                    className="botao-lixeira"
-                  >
-                    🗑️
-                  </button>
+    <><div
+        className="container-principal"
+        onKeyDown={handleKeyDown}
+        onKeyUp={handleKeyUp}
+        tabIndex={0}
+      >
+        <div className="coluna-esquerda">
+          <img src="src/assets/Logo_FSHOP_LOGO.svg" alt="FShop Logo" className="logo-fshop" />
+          <h2>Carrinho</h2>
+          <div className="carrinho-itens">
+            {carrinho.length === 0 ? (
+              <p>Carrinho vazio.</p>
+            ) : (
+              carrinho.map(({ item, quantidadeSelecionada }) => (
+                <div key={item.id} className="carrinho-item">
+                  <span>{item.nome}</span>
+                  <div className="carrinho-acoes">
+                    <span className="quantidade">Qtd: {quantidadeSelecionada}</span>
+                    <button
+                      onClick={() => adicionarAoCarrinho(item)}
+                      className="cursor-target"
+                      disabled={!(itensLoja.find((it) => it.id === item.id)?.emEstoque && (itensLoja.find((it) => it.id === item.id)?.quantidade ?? 0) > 0)}
+                      title={!(itensLoja.find((it) => it.id === item.id)?.emEstoque && (itensLoja.find((it) => it.id === item.id)?.quantidade ?? 0) > 0) ? 'Item indisponível' : 'Adicionar mais'}
+                    >
+                      +
+                    </button>
+                    <button className="cursor-target" onClick={() => handleDecrement(item.id)}>-</button>
+                    <button className="cursor-target botao-lixeira" onClick={() => handleRemove(item.id)}>
+                      🗑️
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
+          <div className="carrinho-total">
+            <h3>Total: R$ {calcularTotal().toFixed(2)}</h3>
+            <button className="finalizar-compra cursor-target" onClick={finalizarCompra}>
+              Finalizar Compra
+            </button>
+          </div>
         </div>
-        <div className="carrinho-total">
-          <h3>Total: R$ {calcularTotal().toFixed(2)}</h3>
-          <button className="finalizar-compra" onClick={finalizarCompra}>
-            Finalizar Compra
-          </button>
+        <div className="coluna-direita">
+          <h1>Catálogo</h1>
+          <div className="produtos-grid">
+            {itensLoja.map((item) => (
+              <ItemLoja
+                key={item.id}
+                item={item}
+                onAddToCart={adicionarAoCarrinho}
+                onViewDetails={handleVerDetalhes} />
+            ))}
+          </div>
         </div>
-        <div className="adicionar-por-codigo">
-          <input
-            id="codigo-produto-input" // Added ID for easier focus management
-            type="text"
-            value={codigoProduto}
-            onChange={(e) => setCodigoProduto(e.target.value)}
-            placeholder="Código do produto"
-          />
-          <button onClick={handleAdicionarPorCodigo}>+</button>
-        </div>
-      </div>
-      <div className="coluna-direita">
-        <h1>Catálogo</h1>
-        <div className="produtos-grid">
-          {itensLoja.map((item) => (
-            <div key={item.id} className="item-card">
-              <img src={item.imagem} alt={item.nome} className="item-image" />
-              <h3 className="item-nome">{item.nome}</h3>
-              <p className="item-preco">R$ {item.preco.toFixed(2)}</p>
-              <p className="item-codigo">Código: {item.id}</p>
-              <div className="item-buttons">
-                <button onClick={() => adicionarAoCarrinho(item)} className="btn-adicionar">
-                  Adicionar
-                </button>
-                <button onClick={() => handleVerDetalhes(item)} className="btn-detalhes">
-                  Detalhes
-                </button>
-              </div>
+        {tempoPressionado > 0 && (
+          <div className="carregamento">
+            <div className="carregamento-barra" style={{ width: `${(tempoPressionado / 1.5) * 100}%` }} />
+          </div>
+        )}
+        {mostrarQRCode && (
+          <div className="qrcode-popup">
+            <div className="qrcode-popup-content">
+              <h2>Escaneie o QR Code para efetuar o pagamento</h2>
+              <img
+                src="src\assets\QR_CODE_Placeholder.png"
+                alt="QR Code Placeholder"
+                className="qrcode-image" />
+              <button className="cursor-target" onClick={() => setMostrarQRCode(false)}>Fechar</button>
             </div>
-          ))}
-        </div>
-      </div>
-      {tempoPressionado > 0 && (
-        <div className="carregamento">
-          <div className="carregamento-barra" style={{ width: `${(tempoPressionado / 1.5) * 100}%` }} />
-        </div>
-      )}
-      {mostrarQRCode && (
-        <div className="qrcode-popup">
-          <div className="qrcode-popup-content">
-            <h2>Escaneie o QR Code para efetuar o pagamento</h2>
-            <img
-              src="https://via.placeholder.com/200"
-              alt="QR Code Placeholder"
-              className="qrcode-image"
-            />
-            <button onClick={() => setMostrarQRCode(false)}>Fechar</button>
           </div>
-        </div>
-      )}
-      {itemDetalhes && (
-        <div className="detalhes-popup">
-          <div className="detalhes-popup-content">
-            <h2>{itemDetalhes.nome}</h2>
-            <p>{itemDetalhes.descricao}</p>
-            <p>Preço: R$ {itemDetalhes.preco.toFixed(2)}</p>
-            <button onClick={fecharDetalhes}>Fechar</button>
+        )}
+        {itemDetalhes && (
+          <div className="detalhes-popup">
+            <div className="detalhes-popup-content">
+              <h2>{itemDetalhes.nome}</h2>
+              <p>{itemDetalhes.descricao}</p>
+              <p>Preço: R$ {itemDetalhes.preco.toFixed(2)}</p>
+              <button className="cursor-target" onClick={fecharDetalhes}>Fechar</button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div></>
   );
 }
 
 export default App;
+

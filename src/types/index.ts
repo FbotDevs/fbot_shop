@@ -6,7 +6,6 @@ export interface DataModel {
     updatedAt: Date;
 }
 
-// Interface para itens da loja
 export type ItemTipo = 'comida' | 'bebida' | 'doces' | 'merch';
 
 export interface ViewerConfig {
@@ -31,7 +30,6 @@ export interface LojaItem {
 
 }
 
-// Interface para o carrinho de compras
 export interface CarrinhoItem {
     item: LojaItem;
     quantidadeSelecionada: number;
